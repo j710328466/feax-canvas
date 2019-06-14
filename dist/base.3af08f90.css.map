@@ -1,0 +1,1 @@
+{"version":3,"sources":["base/index.scss"],"names":[],"mappings":"AAAA;EACI,SAAS;EACT,UAAU;EACV,kBAAkB,EAAA;;AAEtB;EACI,sBAAsB,EAAA","file":"base.3af08f90.css","sourceRoot":"../src","sourcesContent":["* {\n    margin: 0;\n    padding: 0;\n    text-align: center;\n}\n#tutorial {\n    border: 1px solid #000;\n}"]}
