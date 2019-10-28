@@ -1,0 +1,85 @@
+svg, img {
+		max-width: 100%;
+}
+* {
+  padding: 0;
+  margin: 0;
+}
+html,body {
+  height: 100%;
+  background-color: black;
+}
+/* .wukong {
+  width: 200px;
+  height: 200px;
+  left: 50%;
+  top: 50%;
+  position: absolute;
+
+  opacity: 0;
+  animation: fadeIn 5.5s forwards linear infinite;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} */
+.wukong-svg {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    left: 50%;
+    top: 50%;
+    z-index: 10;
+    stroke-dasharray: 800;
+    stroke-dashoffset: 1000;
+
+    animation: dash 5.5s forwards linear;
+    -webkit-animation: dash 5.5s forwards linear infinite;
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/*# sourceMappingURL=/wukong.95f8154f.css.map */

@@ -1,0 +1,1 @@
+{"version":3,"sources":["coolCanvas/index.scss"],"names":[],"mappings":"AAAA;EACI,SAAS;EACT,UAAU,EAAA;;AAEd;EACI,sBAAsB,EAAA","file":"coolCanvas.ed1defce.css","sourceRoot":"../src","sourcesContent":["* {\n    margin: 0;\n    padding: 0;\n}\n.demo1 {\n    background-color: #000;\n}"]}

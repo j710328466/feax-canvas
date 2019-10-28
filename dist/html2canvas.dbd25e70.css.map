@@ -1,0 +1,1 @@
+{"version":3,"sources":["html2canvas/index.scss"],"names":[],"mappings":"AACI;EACI,cAAc;EACd,WAAW;EACX,YAAY,EAAA","file":"html2canvas.dbd25e70.css","sourceRoot":"../src","sourcesContent":[".draw {\n    &_pic {\n        display: block;\n        width: 100%;\n        height: 100%;\n    }\n    .canvas {\n        \n    }\n}"]}

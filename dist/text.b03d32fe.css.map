@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.css"],"names":[],"mappings":"AAAA;IACI,SAAS;IACT,UAAU;IACV,kBAAkB;AACtB;AACA;IACI,cAAc;AAClB;AACA;IACI,sBAAsB;AAC1B","file":"text.b03d32fe.css","sourceRoot":"../src","sourcesContent":["* {\n    margin: 0;\n    padding: 0;\n    text-align: center;\n}\nbody {\n    margin: 50px 0;\n}\ncanvas {\n    border: 1px solid #000;\n}"]}
