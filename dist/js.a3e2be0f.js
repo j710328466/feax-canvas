@@ -117,50 +117,13 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"coolCanvas/lessons/1.js":[function(require,module,exports) {
+})({"rouletteWheel/js/global.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = lesson1;
-
-function lesson1(params) {
-  var canvas = document.getElementById('demo1');
-  var ctx = canvas.getContext('2d');
-  ctx.beginPath();
-  ctx.arc(100, 100, 50, 0, Math.PI * 2, true);
-  ctx.closePath();
-  ctx.fillStyle = '#fff';
-  ctx.shadowBlur = 6;
-  ctx.shadowColor = '#fff';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(80, 80, 60, 0, Math.PI * 0.5, false);
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#ccc';
-  ctx.shadowBlur = 5;
-  ctx.shadowColor = '#fff';
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(140, 140);
-  ctx.lineTo(260, 260);
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#fff';
-  ctx.stroke();
-  ctx.closePath();
-  ctx.beginPath();
-  ctx.strokeRect(260, 260, 40, 40);
-}
-},{}],"coolCanvas/lessons/2.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = lesson2;
+exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -168,162 +131,238 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var canvas = document.getElementById('demo1');
-var ctx = canvas.getContext('2d');
-var WIDTH = document.documentElement.clientWidth;
-var HEIGHT = document.documentElement.clientHeight;
-var starNum = 100;
-var SPEED = 0.2;
-var rounds = [];
-
-function lesson2(params) {
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-
-  for (var i = 0; i < starNum; i++) {
-    rounds[i] = new RoundItem({
-      index: i,
-      x: Math.random() * WIDTH,
-      y: Math.random() * HEIGHT
-    });
-    rounds[i].draw();
-  }
-
-  animate(); // 初始化星空
-
-  var initStart = new InitStar({
-    width: 100,
-    height: 100,
-    num: 100
-  });
-}
-
-var InitStar =
+var Global =
 /*#__PURE__*/
 function () {
-  function InitStar(opt) {
-    _classCallCheck(this, InitStar);
-
-    this.opt = {};
+  function Global() {
+    _classCallCheck(this, Global);
   }
 
-  _createClass(InitStar, [{
-    key: "animate",
-    value: function animate() {}
-  }, {
-    key: "draw",
-    value: function draw() {}
-  }]);
+  _createClass(Global, [{
+    key: "IsPC",
 
-  return InitStar;
-}(); // 动画执行
+    /**
+     * 判断是否为 PC 端，若是则返回 true，否则返回 flase
+     */
+    value: function IsPC() {
+      var userAgentInfo = navigator.userAgent,
+          flag = true,
+          Agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
 
-
-function animate() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-  for (var i in rounds) {
-    rounds[i].move();
-  }
-
-  requestAnimationFrame(animate);
-}
-
-var RoundItem =
-/*#__PURE__*/
-function () {
-  function RoundItem(opt) {
-    _classCallCheck(this, RoundItem);
-
-    this.index = opt.index;
-    this.x = opt.x;
-    this.y = opt.y;
-    this.r = Math.random() * 2;
-    var alpha = (Math.floor(Math.random() * 10) + 1) / 10;
-    this.color = "rgba(255, 255, 255, ".concat(alpha, ")");
-  }
-
-  _createClass(RoundItem, [{
-    key: "draw",
-    value: function draw() {
-      ctx.fillStyle = this.color;
-      ctx.shadowBlur = this.r * 2;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }, {
-    key: "move",
-    value: function move() {
-      this.y -= SPEED;
-
-      if (this.y <= -10) {
-        this.y = HEIGHT + 10;
+      for (var v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) {
+          flag = false;
+          break;
+        }
       }
 
-      this.draw();
+      return flag;
+    }
+  }, {
+    key: "easeOut",
+
+    /**
+     * 缓动函数，由快到慢
+     * @param {Num} t 当前时间
+     * @param {Num} b 初始值
+     * @param {Num} c 变化值
+     * @param {Num} d 持续时间
+     */
+    value: function easeOut(t, b, c, d) {
+      if ((t /= d / 2) < 1) return c / 2 * t * t + b;
+      return -c / 2 * (--t * (t - 2) - 1) + b;
+    }
+  }, {
+    key: "windowToCanvas",
+    value: function windowToCanvas(canvas, e) {
+      var bbox = canvas.getBoundingClientRect(),
+          x = this.IsPC() ? e.clientX || event.clientX : e.changedTouches[0].clientX,
+          y = this.IsPC() ? e.clientY || event.clientY : e.changedTouches[0].clientY;
+      return {
+        x: x - bbox.left,
+        y: y - bbox.top
+      };
+    }
+  }, {
+    key: "drawText",
+
+    /**
+     * 绘制自动换行的文本
+     * @param {Obj} context
+     * @param {Str} t          文本内容
+     * @param {Num} x          坐标
+     * @param {Num} y          坐标
+     * @param {Num} w          文本限制宽度
+     * @param {Num} lineHeight 行高
+     */
+    value: function drawText(context, t, x, y, w) {
+      var lineHeight = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 20;
+      var chr = t.split(''),
+          temp = '',
+          row = [];
+
+      for (var a = 0; a < chr.length; a++) {
+        if (context.measureText(temp).width < w) {
+          ;
+        } else {
+          row.push(temp);
+          temp = '';
+        }
+
+        temp += chr[a];
+      }
+
+      ;
+      row.push(temp);
+
+      for (var b = 0; b < row.length; b++) {
+        context.fillText(row[b], x, y + (b + 1) * lineHeight);
+      }
+
+      ;
+    }
+  }, {
+    key: "roundedRect",
+
+    /**
+     * 定义圆角矩形的方法
+     * @param {Obj} context
+     * @param {Num} cornerX 
+     * @param {Num} cornerY 
+     * @param {Num} width 
+     * @param {Num} height 
+     * @param {Num} cornerRadius 
+     */
+    value: function roundedRect(context, cornerX, cornerY, width, height, cornerRadius) {
+      if (width > 0) context.moveTo(cornerX + cornerRadius, cornerY);else context.moveTo(cornerX - cornerRadius, cornerY);
+      context.arcTo(cornerX + width, cornerY, cornerX + width, cornerY + height, cornerRadius);
+      context.arcTo(cornerX + width, cornerY + height, cornerX, cornerY + height, cornerRadius);
+      context.arcTo(cornerX, cornerY + height, cornerX, cornerY, cornerRadius);
+
+      if (width > 0) {
+        context.arcTo(cornerX, cornerY, cornerX + cornerRadius, cornerY, cornerRadius);
+      } else {
+        context.arcTo(cornerX, cornerY, cornerX - cornerRadius, cornerY, cornerRadius);
+      }
     }
   }]);
 
-  return RoundItem;
+  return Global;
 }();
-},{}],"coolCanvas/lessons/3.js":[function(require,module,exports) {
+
+exports.default = Global;
+},{}],"rouletteWheel/js/index.js":[function(require,module,exports) {
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = lesson3;
-
-function lesson3(ctx, width, height) {
-  var para = {
-    num: 100,
-    color: false,
-    r: 0.9,
-    o: 0.09,
-    a: 1
-  };
-  var color, color2, mouseX, mouseY;
-  var rounds = [];
-
-  window.onmousemove = function (event) {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    rounds.push({
-      mouseX: mouseX,
-      mouseY: mouseY,
-      r: para.r,
-      // 设置半径每次增大的数值
-      o: 1 // 判断圆消失的条件，数值越大，消失越快
-
-    });
-  };
-}
-},{}],"coolCanvas/index.js":[function(require,module,exports) {
-"use strict";
-
-var _ = _interopRequireDefault(require("./lessons/1"));
-
-var _2 = _interopRequireDefault(require("./lessons/2"));
-
-var _3 = _interopRequireDefault(require("./lessons/3"));
+var _global = _interopRequireDefault(require("./global"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var canvas = document.getElementById('demo1');
-var ctx = canvas.getContext('2d');
-var WIDTH = document.documentElement.clientWidth;
-var HEIGHT = document.documentElement.clientHeight;
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 window.onload = function () {
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT; // lesson1()
-  // lesson2()
-
-  (0, _3.default)(ctx, WIDTH, HEIGHT);
+  var rw = new RouletteWheel({
+    canvasName: '#rw',
+    width: '500',
+    height: '500',
+    awards: [// 转盘内的奖品个数以及内容
+    '大保健', '话费10元', '话费20元', '话费30元', '保时捷911', '周大福土豪金项链']
+  });
 };
-},{"./lessons/1":"coolCanvas/lessons/1.js","./lessons/2":"coolCanvas/lessons/2.js","./lessons/3":"coolCanvas/lessons/3.js"}],"../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+var RouletteWheel =
+/*#__PURE__*/
+function (_Global) {
+  _inherits(RouletteWheel, _Global);
+
+  function RouletteWheel(params) {
+    var _this;
+
+    _classCallCheck(this, RouletteWheel);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RouletteWheel).call(this));
+    _this.width = params.width;
+    _this.height = params.height;
+    _this.centerX = params.centerX;
+    _this.centerY = params.centerY;
+    _this.outsideRadius = params.outsideRadius;
+    _this.evenColor = params.evenColor;
+    _this.oddColor = params.oddColor;
+    _this.loseColor = params.odd;
+    _this.textColor = params.textColor;
+    _this.awards = params.awards || [];
+    _this.startRadian = params.startRadian || 0;
+    _this.duration = params.duration || 4000;
+    _this.velocity = params.velocity || 10; // 回调函数
+
+    _this.finish = params.finish;
+    return _this;
+  }
+
+  _createClass(RouletteWheel, [{
+    key: "initCanvas",
+    value: function initCanvas() {
+      var canvas = document.querySelector(this.canvasName);
+      canvas.width = this.width;
+      canvas.height = this.height;
+      var ctx = canvas.getContext('2d');
+
+      for (var i = 0; i < this.awards.length; i++) {
+        // const award = awards[i]
+        var _startR = this.startRadian + this.awardRadian * i;
+
+        var _endR = _startR + this.awardRadian;
+
+        if (i % 2 === 0) ctx.fillStyle = "#FF6766";else ctx.fillStyle = "#FD5757";
+        ctx.beginPath(); //开始绘制路径
+
+        ctx.moveTo(250, 250); //将当前位置移动到新的目标点
+
+        ctx.arc(250, 250, this.radius, _startR, _endR);
+        ctx.closePath(); //绘制路径
+
+        ctx.fill();
+      } // ctx.beginPath(); //开始绘制路径
+      // ctx.moveTo(250, 250); //将当前位置移动到新的目标点
+      // ctx.arc(250, 250, 250, Math.PI / 2, Math.PI);
+      // ctx.closePath(); //绘制路径
+      // ctx.fillStyle = "#ccc"; //填充背景颜色
+      // ctx.fill();
+      // ctx.beginPath(); //开始绘制路径
+      // ctx.moveTo(250, 250); //将当前位置移动到新的目标点
+      // ctx.arc(250, 250, 250, Math.PI, Math.PI * 1.5);
+      // ctx.closePath(); //绘制路径
+      // ctx.fillStyle = "#ddd"; //填充背景颜色
+      // ctx.fill();
+      // ctx.beginPath(); //开始绘制路径
+      // ctx.moveTo(250, 250); //将当前位置移动到新的目标点
+      // ctx.arc(250, 250, 250, Math.PI * 1.5, Math.PI * 2);
+      // ctx.closePath(); //绘制路径
+      // ctx.fillStyle = "#aaa"; //填充背景颜色
+      // ctx.fill();
+
+    }
+  }]);
+
+  return RouletteWheel;
+}(_global.default);
+},{"./global":"rouletteWheel/js/global.js"}],"../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -526,5 +565,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js","coolCanvas/index.js"], null)
-//# sourceMappingURL=/coolCanvas.ed1defce.js.map
+},{}]},{},["../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js","rouletteWheel/js/index.js"], null)
+//# sourceMappingURL=/js.a3e2be0f.js.map
