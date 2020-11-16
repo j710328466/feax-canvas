@@ -117,50 +117,19 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"coolCanvas/lessons/1.js":[function(require,module,exports) {
+})({"coolCanvas/lessons/lollipop.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = lesson1;
+exports.default = void 0;
 
-function lesson1(params) {
-  var canvas = document.getElementById('demo1');
-  var ctx = canvas.getContext('2d');
-  ctx.beginPath();
-  ctx.arc(100, 100, 50, 0, Math.PI * 2, true);
-  ctx.closePath();
-  ctx.fillStyle = '#fff';
-  ctx.shadowBlur = 6;
-  ctx.shadowColor = '#fff';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(80, 80, 60, 0, Math.PI * 0.5, false);
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#ccc';
-  ctx.shadowBlur = 5;
-  ctx.shadowColor = '#fff';
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(140, 140);
-  ctx.lineTo(260, 260);
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#fff';
-  ctx.stroke();
-  ctx.closePath();
-  ctx.beginPath();
-  ctx.strokeRect(260, 260, 40, 40);
-}
-},{}],"coolCanvas/lessons/2.js":[function(require,module,exports) {
-"use strict";
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = lesson2;
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -168,162 +137,381 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var canvas = document.getElementById('demo1');
-var ctx = canvas.getContext('2d');
-var WIDTH = document.documentElement.clientWidth;
-var HEIGHT = document.documentElement.clientHeight;
-var starNum = 100;
-var SPEED = 0.2;
-var rounds = [];
+var Lollipop = /*#__PURE__*/function () {
+  function Lollipop(opt) {
+    _classCallCheck(this, Lollipop);
 
-function lesson2(params) {
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
+    this.opt = _objectSpread({
+      canvas: document.querySelector('#paper'),
+      // 画布
+      width: document.documentElement.clientWidth,
+      // 宽度
+      height: document.documentElement.clientHeight,
+      // 高度
+      bgColor: '#000'
+    }, opt);
+    this.ctx = this.opt.canvas.getContext('2d'); // 初始化画布
 
-  for (var i = 0; i < starNum; i++) {
-    rounds[i] = new RoundItem({
-      index: i,
-      x: Math.random() * WIDTH,
-      y: Math.random() * HEIGHT
-    });
-    rounds[i].draw();
+    this.opt.canvas.width = this.opt.width;
+    this.opt.canvas.height = this.opt.height;
+    this.opt.canvas.style.backgroundColor = this.opt.bgColor;
+    this.render();
   }
 
-  animate(); // 初始化星空
+  _createClass(Lollipop, [{
+    key: "render",
+    value: function render() {
+      this._drawCircle(this.ctx);
 
-  var initStart = new InitStar({
-    width: 100,
-    height: 100,
-    num: 100
-  });
-}
+      this._drawStick(this.ctx);
 
-var InitStar =
-/*#__PURE__*/
-function () {
-  function InitStar(opt) {
-    _classCallCheck(this, InitStar);
+      this._drawHalfCircle(this.ctx);
+    }
+    /**
+     * 画圆
+     * @param {*} ctx 
+     */
 
-    this.opt = {};
-  }
-
-  _createClass(InitStar, [{
-    key: "animate",
-    value: function animate() {}
   }, {
-    key: "draw",
-    value: function draw() {}
+    key: "_drawCircle",
+    value: function _drawCircle(ctx) {
+      ctx.beginPath();
+      ctx.arc(300, 300, 50, 0, Math.PI * 2, true);
+      ctx.closePath();
+      ctx.fillStyle = '#fff';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#fff';
+      ctx.fill();
+    }
+    /**
+     * 棍子
+     * @param {*} ctx 
+     */
+
+  }, {
+    key: "_drawStick",
+    value: function _drawStick(ctx) {
+      ctx.beginPath();
+      ctx.moveTo(340, 340);
+      ctx.lineTo(450, 450);
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#fff';
+      ctx.stroke();
+      ctx.closePath();
+    }
+  }, {
+    key: "_drawHalfCircle",
+    value: function _drawHalfCircle(ctx) {
+      ctx.beginPath();
+      ctx.arc(300, 300, 30, 0, Math.PI * 0.6, false);
+      ctx.shadowBlur = 5;
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#ccc';
+      ctx.stroke();
+    }
   }]);
 
-  return InitStar;
-}(); // 动画执行
+  return Lollipop;
+}();
+
+exports.default = Lollipop;
+},{}],"coolCanvas/lessons/nightSky.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = lesson2;
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function lesson2(params) {
+  // 初始化星空
+  var nightSky = new NightSky({
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight
+  });
+}
+/**
+ * 星空初始化
+ */
 
 
-function animate() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+var NightSky = /*#__PURE__*/function () {
+  function NightSky(opt) {
+    _classCallCheck(this, NightSky);
 
-  for (var i in rounds) {
-    rounds[i].move();
+    this.opt = _objectSpread({
+      width: 500,
+      height: 500,
+      num: 120,
+      canvas: document.getElementById('paper')
+    }, opt);
+    this.opt.canvas.width = this.opt.width;
+    this.opt.canvas.height = this.opt.height;
+    this.ctx = this.opt.canvas.getContext('2d');
+    this.opt.canvas.style.backgroundColor = '#000';
+    this.starList = [];
+    this.draw = this.draw;
+    this.init();
   }
 
-  requestAnimationFrame(animate);
-}
+  _createClass(NightSky, [{
+    key: "init",
+    value: function init() {
+      this.drawStar();
+      this.animate();
+    }
+  }, {
+    key: "drawStar",
+    value: function drawStar() {
+      var _this$opt = this.opt,
+          width = _this$opt.width,
+          height = _this$opt.height,
+          num = _this$opt.num;
 
-var RoundItem =
-/*#__PURE__*/
-function () {
-  function RoundItem(opt) {
-    _classCallCheck(this, RoundItem);
+      for (var i = 0; i < num; i++) {
+        this.starList[i] = new Star({
+          maxRadius: 3,
+          ctx: this.ctx,
+          width: width,
+          height: height
+        });
+        this.starList[i].draw();
+      }
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      var ctx = this.ctx;
+      var starList = this.starList;
+      var _this$opt2 = this.opt,
+          width = _this$opt2.width,
+          height = _this$opt2.height;
 
-    this.index = opt.index;
-    this.x = opt.x;
-    this.y = opt.y;
-    this.r = Math.random() * 2;
+      function _move() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (var i in starList) {
+          starList[i].move();
+        }
+
+        window.requestAnimationFrame(_move);
+      }
+
+      window.requestAnimationFrame(_move);
+    }
+  }, {
+    key: "draw",
+    value: function draw(val) {
+      return val;
+    }
+  }]);
+
+  return NightSky;
+}();
+
+var Star = /*#__PURE__*/function () {
+  function Star(opt) {
+    _classCallCheck(this, Star);
+
+    var width = opt.width,
+        height = opt.height,
+        _opt$maxRadius = opt.maxRadius,
+        maxRadius = _opt$maxRadius === void 0 ? 2 : _opt$maxRadius,
+        ctx = opt.ctx,
+        _opt$speed = opt.speed,
+        speed = _opt$speed === void 0 ? 0.5 : _opt$speed;
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.height = height;
+    this.width = width;
+    this.speed = speed;
+    this.maxRadius = maxRadius;
+    this.ctx = ctx;
+    this.r = Math.random() * maxRadius;
     var alpha = (Math.floor(Math.random() * 10) + 1) / 10;
     this.color = "rgba(255, 255, 255, ".concat(alpha, ")");
   }
 
-  _createClass(RoundItem, [{
+  _createClass(Star, [{
     key: "draw",
     value: function draw() {
-      ctx.fillStyle = this.color;
-      ctx.shadowBlur = this.r * 2;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
-      ctx.closePath();
-      ctx.fill();
+      this.ctx.fillStyle = this.color;
+      this.ctx.shadowBlur = this.r * 2;
+      this.ctx.beginPath();
+      this.ctx.arc(this.x, this.y, this.r * Math.random(), 0, 2 * Math.PI, false);
+      this.ctx.closePath();
+      this.ctx.fill();
     }
   }, {
     key: "move",
     value: function move() {
-      this.y -= SPEED;
+      this.y -= this.speed;
 
       if (this.y <= -10) {
-        this.y = HEIGHT + 10;
+        this.y = this.height + 10;
       }
 
       this.draw();
     }
   }]);
 
-  return RoundItem;
+  return Star;
 }();
-},{}],"coolCanvas/lessons/3.js":[function(require,module,exports) {
+},{}],"coolCanvas/lessons/move.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = lesson3;
+exports.default = void 0;
 
-function lesson3(ctx, width, height) {
-  var para = {
-    num: 100,
-    color: false,
-    r: 0.9,
-    o: 0.09,
-    a: 1
-  };
-  var color, color2, mouseX, mouseY;
-  var rounds = [];
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-  window.onmousemove = function (event) {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    rounds.push({
-      mouseX: mouseX,
-      mouseY: mouseY,
-      r: para.r,
-      // 设置半径每次增大的数值
-      o: 1 // 判断圆消失的条件，数值越大，消失越快
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-    });
-  };
-}
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Move = /*#__PURE__*/function () {
+  function Move(opt) {
+    _classCallCheck(this, Move);
+
+    var option = _objectSpread({
+      canvas: document.getElementById('paper'),
+      width: document.documentElement.clientWidth,
+      // 宽度
+      height: document.documentElement.clientHeight,
+      // 高度
+      bgColor: '#000',
+      para: {
+        num: 100,
+        color: false,
+        //  颜色  如果是false 则是随机渐变颜色
+        r: 0.9,
+        //   圆每次增加的半径 
+        o: 0.09 //      判断圆消失的条件，数值越大，消失的越快
+
+      }
+    }, opt);
+
+    var canvas = option.canvas,
+        width = option.width,
+        height = option.height,
+        bgColor = option.bgColor;
+    this.option = option;
+    this.round_arr = [];
+    this.ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.backgroundColor = bgColor;
+    this.init(this);
+  }
+
+  _createClass(Move, [{
+    key: "init",
+    value: function init(opt) {
+      var tempSum = 0;
+
+      window.onmousemove = function (event) {
+        var mouseX = event.clientX;
+        var mouseY = event.clientY;
+
+        if (tempSum < 5) {
+          tempSum++;
+        } else {
+          opt.round_arr.push({
+            mouseX: mouseX,
+            mouseY: mouseY,
+            r: opt.option.para.r,
+            // 设置半径每次增大的数值        
+            o: 1 //  判断圆消失的条件，数值越大，消失得越快
+
+          });
+          tempSum = 0;
+          opt.animate();
+        }
+      };
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      var _this$option = this.option,
+          para = _this$option.para,
+          width = _this$option.width,
+          height = _this$option.height;
+      var color = 0,
+          color2;
+      var ctx = this.ctx;
+      var round_arr = this.round_arr;
+
+      if (!para.color) {
+        color += Math.random();
+        color2 = 'hsl(' + color + ',100%,80%)';
+      }
+
+      console.log(color);
+
+      function _move() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (var i = 0; i < round_arr.length; i++) {
+          ctx.fillStyle = color2;
+          ctx.beginPath();
+          ctx.arc(round_arr[i].mouseX, round_arr[i].mouseY, round_arr[i].r, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.fill();
+          round_arr[i].r += para.r;
+          round_arr[i].o -= para.o;
+
+          if (round_arr[i].o <= 0) {
+            round_arr.splice(i, 1);
+            i--;
+          }
+        }
+      }
+
+      window.requestAnimationFrame(_move);
+    }
+  }]);
+
+  return Move;
+}();
+
+exports.default = Move;
 },{}],"coolCanvas/index.js":[function(require,module,exports) {
 "use strict";
 
-var _ = _interopRequireDefault(require("./lessons/1"));
+var _lollipop = _interopRequireDefault(require("./lessons/lollipop"));
 
-var _2 = _interopRequireDefault(require("./lessons/2"));
+var _nightSky = _interopRequireDefault(require("./lessons/nightSky"));
 
-var _3 = _interopRequireDefault(require("./lessons/3"));
+var _move = _interopRequireDefault(require("./lessons/move"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var canvas = document.getElementById('demo1');
-var ctx = canvas.getContext('2d');
-var WIDTH = document.documentElement.clientWidth;
-var HEIGHT = document.documentElement.clientHeight;
-
 window.onload = function () {
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT; // lesson1()
-  // lesson2()
-
-  (0, _3.default)(ctx, WIDTH, HEIGHT);
+  var move = new _move.default();
 };
-},{"./lessons/1":"coolCanvas/lessons/1.js","./lessons/2":"coolCanvas/lessons/2.js","./lessons/3":"coolCanvas/lessons/3.js"}],"../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./lessons/lollipop":"coolCanvas/lessons/lollipop.js","./lessons/nightSky":"coolCanvas/lessons/nightSky.js","./lessons/move":"coolCanvas/lessons/move.js"}],"../node_modules/_parcel-bundler@1.12.4@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -351,7 +539,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56721" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58820" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -382,8 +570,9 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         assetsToAccept.forEach(function (v) {
           hmrAcceptRun(v[0], v[1]);
         });
-      } else {
-        window.location.reload();
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
       }
     }
 
@@ -526,5 +715,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js","coolCanvas/index.js"], null)
+},{}]},{},["../node_modules/_parcel-bundler@1.12.4@parcel-bundler/src/builtins/hmr-runtime.js","coolCanvas/index.js"], null)
 //# sourceMappingURL=/coolCanvas.ed1defce.js.map

@@ -120,11 +120,11 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 })({"../node_modules/html2canvas/dist/html2canvas.js":[function(require,module,exports) {
 var define;
 var global = arguments[3];
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 /*!
- * html2canvas 1.0.0-rc.5 <https://html2canvas.hertzen.com>
- * Copyright (c) 2019 Niklas von Hertzen <https://hertzen.com>
+ * html2canvas 1.0.0-rc.7 <https://html2canvas.hertzen.com>
+ * Copyright (c) 2020 Niklas von Hertzen <https://hertzen.com>
  * Released under MIT License
  */
 (function (global, factory) {
@@ -3261,7 +3261,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     },
 
     get SUPPORT_CORS_XHR() {
-      var value = 'withCredentials' in new XMLHttpRequest();
+      var value = ('withCredentials' in new XMLHttpRequest());
       Object.defineProperty(FEATURES, 'SUPPORT_CORS_XHR', {
         value: value
       });
@@ -5138,16 +5138,35 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     prefix: false,
     type: PropertyDescriptorParsingType.LIST,
     parse: function parse(tokens) {
-      return tokens.filter(isStringToken$1).map(function (token) {
-        return token.value;
+      var accumulator = [];
+      var results = [];
+      tokens.forEach(function (token) {
+        switch (token.type) {
+          case TokenType.IDENT_TOKEN:
+          case TokenType.STRING_TOKEN:
+            accumulator.push(token.value);
+            break;
+
+          case TokenType.NUMBER_TOKEN:
+            accumulator.push(token.number.toString());
+            break;
+
+          case TokenType.COMMA_TOKEN:
+            results.push(accumulator.join(' '));
+            accumulator.length = 0;
+            break;
+        }
+      });
+
+      if (accumulator.length) {
+        results.push(accumulator.join(' '));
+      }
+
+      return results.map(function (result) {
+        return result.indexOf(' ') === -1 ? result : "'" + result + "'";
       });
     }
   };
-
-  var isStringToken$1 = function isStringToken$1(token) {
-    return token.type === TokenType.STRING_TOKEN || token.type === TokenType.IDENT_TOKEN;
-  };
-
   var fontSize = {
     name: "font-size",
     initialValue: '0',
@@ -6056,7 +6075,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
   };
 
   var isHTMLElementNode = function isHTMLElementNode(node) {
-    return typeof node.style !== 'undefined';
+    return isElementNode(node) && typeof node.style !== 'undefined' && !isSVGElementNode(node);
+  };
+
+  var isSVGElementNode = function isSVGElementNode(element) {
+    return _typeof(element.className) === 'object';
   };
 
   var isLIElement = function isLIElement(node) {
@@ -6552,7 +6575,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         return this.createStyleClone(node);
       }
 
-      return node.cloneNode(false);
+      var clone = node.cloneNode(false); // @ts-ignore
+
+      if (isImageElement(clone) && clone.loading === 'lazy') {
+        // @ts-ignore
+        clone.loading = 'eager';
+      }
+
+      return clone;
     };
 
     DocumentCloner.prototype.createStyleClone = function (node) {
@@ -6688,13 +6718,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var window = node.ownerDocument.defaultView;
 
-      if (isHTMLElementNode(node) && window) {
+      if (window && isElementNode(node) && (isHTMLElementNode(node) || isSVGElementNode(node))) {
         var clone = this.createElementClone(node);
         var style = window.getComputedStyle(node);
         var styleBefore = window.getComputedStyle(node, ':before');
         var styleAfter = window.getComputedStyle(node, ':after');
 
-        if (this.referenceElement === node) {
+        if (this.referenceElement === node && isHTMLElementNode(clone)) {
           this.clonedReferenceElement = clone;
         }
 
@@ -6725,7 +6755,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         this.counters.pop(counters);
 
-        if (style && this.options.copyStyles && !isIFrameElement(node)) {
+        if (style && (this.options.copyStyles || isSVGElementNode(node)) && !isIFrameElement(node)) {
           copyCSSStyles(style, clone);
         } //this.inlineAllImages(clone);
 
@@ -6822,7 +6852,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }
       });
       anonymousReplacedElement.className = PSEUDO_HIDE_ELEMENT_CLASS_BEFORE + " " + PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
-      clone.className += pseudoElt === PseudoElementType.BEFORE ? " " + PSEUDO_HIDE_ELEMENT_CLASS_BEFORE : " " + PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
+      var newClassName = pseudoElt === PseudoElementType.BEFORE ? " " + PSEUDO_HIDE_ELEMENT_CLASS_BEFORE : " " + PSEUDO_HIDE_ELEMENT_CLASS_AFTER;
+
+      if (isSVGElementNode(clone)) {
+        clone.className.baseValue += newClassName;
+      } else {
+        clone.className += newClassName;
+      }
+
       return anonymousReplacedElement;
     };
 
@@ -7333,7 +7370,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           } else if (order_1 > 0) {
             var index_2 = 0;
             parentStack.positiveZIndex.some(function (current, i) {
-              if (order_1 > current.element.container.styles.zIndex.order) {
+              if (order_1 >= current.element.container.styles.zIndex.order) {
                 index_2 = i + 1;
                 return false;
               } else if (index_2 > 0) {
@@ -8876,7 +8913,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     return renderElement(element, options);
   };
 
-  CacheStorage.setContext(window);
+  if (typeof window !== 'undefined') {
+    CacheStorage.setContext(window);
+  }
 
   var renderElement = function renderElement(element, opts) {
     return __awaiter(_this, void 0, void 0, function () {
@@ -9041,7 +9080,7 @@ module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],"../node_modules/_buffer@4.9.1@buffer/node_modules/base64-js/index.js":[function(require,module,exports) {
+},{}],"../node_modules/_buffer@4.9.2@buffer/node_modules/base64-js/index.js":[function(require,module,exports) {
 'use strict'
 
 exports.byteLength = byteLength
@@ -9109,7 +9148,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -9194,7 +9234,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],"../node_modules/_buffer@4.9.1@buffer/node_modules/ieee754/index.js":[function(require,module,exports) {
+},{}],"../node_modules/_buffer@4.9.2@buffer/node_modules/ieee754/index.js":[function(require,module,exports) {
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -9280,20 +9320,20 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],"../node_modules/_buffer@4.9.1@buffer/node_modules/isarray/index.js":[function(require,module,exports) {
+},{}],"../node_modules/_buffer@4.9.2@buffer/node_modules/isarray/index.js":[function(require,module,exports) {
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],"../node_modules/_buffer@4.9.1@buffer/index.js":[function(require,module,exports) {
+},{}],"../node_modules/_buffer@4.9.2@buffer/index.js":[function(require,module,exports) {
 
 var global = arguments[3];
 /*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
@@ -11080,7 +11120,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":"../node_modules/_buffer@4.9.1@buffer/node_modules/base64-js/index.js","ieee754":"../node_modules/_buffer@4.9.1@buffer/node_modules/ieee754/index.js","isarray":"../node_modules/_buffer@4.9.1@buffer/node_modules/isarray/index.js","buffer":"../node_modules/_buffer@4.9.1@buffer/index.js"}],"../node_modules/qrcode/lib/utils/typedarray-buffer.js":[function(require,module,exports) {
+},{"base64-js":"../node_modules/_buffer@4.9.2@buffer/node_modules/base64-js/index.js","ieee754":"../node_modules/_buffer@4.9.2@buffer/node_modules/ieee754/index.js","isarray":"../node_modules/_buffer@4.9.2@buffer/node_modules/isarray/index.js","buffer":"../node_modules/_buffer@4.9.2@buffer/index.js"}],"../node_modules/qrcode/lib/utils/typedarray-buffer.js":[function(require,module,exports) {
 
 /**
  * Implementation of a subset of node.js Buffer methods for the browser.
@@ -11584,8 +11624,16 @@ Buffer.isBuffer = function isBuffer(b) {
   return !!(b != null && b._isBuffer);
 };
 
-module.exports = Buffer;
-},{"isarray":"../node_modules/qrcode/node_modules/isarray/index.js","buffer":"../node_modules/_buffer@4.9.1@buffer/index.js"}],"../node_modules/qrcode/lib/core/utils.js":[function(require,module,exports) {
+module.exports.alloc = function (size) {
+  var buffer = new Buffer(size);
+  buffer.fill(0);
+  return buffer;
+};
+
+module.exports.from = function (data) {
+  return new Buffer(data);
+};
+},{"isarray":"../node_modules/qrcode/node_modules/isarray/index.js","buffer":"../node_modules/_buffer@4.9.2@buffer/index.js"}],"../node_modules/qrcode/lib/core/utils.js":[function(require,module,exports) {
 var toSJISFunction;
 var CODEWORDS_COUNT = [0, // Not used
 26, 44, 70, 100, 134, 172, 196, 242, 292, 346, 404, 466, 532, 581, 655, 733, 815, 901, 991, 1085, 1156, 1258, 1364, 1474, 1588, 1706, 1828, 1921, 2051, 2185, 2323, 2465, 2611, 2761, 2876, 3034, 3196, 3362, 3532, 3706];
@@ -11739,8 +11787,7 @@ BitBuffer.prototype = {
 };
 module.exports = BitBuffer;
 },{}],"../node_modules/qrcode/lib/core/bit-matrix.js":[function(require,module,exports) {
-
-var Buffer = require('../utils/buffer');
+var BufferUtil = require('../utils/buffer');
 /**
  * Helper class to handle QR Code symbol modules
  *
@@ -11754,10 +11801,8 @@ function BitMatrix(size) {
   }
 
   this.size = size;
-  this.data = new Buffer(size * size);
-  this.data.fill(0);
-  this.reservedBit = new Buffer(size * size);
-  this.reservedBit.fill(0);
+  this.data = BufferUtil.alloc(size * size);
+  this.reservedBit = BufferUtil.alloc(size * size);
 }
 /**
  * Set bit value at specified location
@@ -11932,25 +11977,24 @@ exports.Patterns = {
   PATTERN101: 5,
   PATTERN110: 6,
   PATTERN111: 7
-  /**
-   * Weighted penalty scores for the undesirable features
-   * @type {Object}
-   */
-
 };
+/**
+ * Weighted penalty scores for the undesirable features
+ * @type {Object}
+ */
+
 var PenaltyScores = {
   N1: 3,
   N2: 3,
   N3: 40,
   N4: 10
-  /**
-   * Check if mask pattern value is valid
-   *
-   * @param  {Number}  mask    Mask pattern
-   * @return {Boolean}         true if valid, false otherwise
-   */
-
 };
+/**
+ * Check if mask pattern value is valid
+ *
+ * @param  {Number}  mask    Mask pattern
+ * @return {Boolean}         true if valid, false otherwise
+ */
 
 exports.isValid = function isValid(mask) {
   return mask != null && mask !== '' && !isNaN(mask) && mask >= 0 && mask <= 7;
@@ -12232,19 +12276,10 @@ exports.getTotalCodewordsCount = function getTotalCodewordsCount(version, errorC
   }
 };
 },{"./error-correction-level":"../node_modules/qrcode/lib/core/error-correction-level.js"}],"../node_modules/qrcode/lib/core/galois-field.js":[function(require,module,exports) {
+var BufferUtil = require('../utils/buffer');
 
-var Buffer = require('../utils/buffer');
-
-var EXP_TABLE;
-var LOG_TABLE;
-
-if (Buffer.alloc) {
-  EXP_TABLE = Buffer.alloc(512);
-  LOG_TABLE = Buffer.alloc(256);
-} else {
-  EXP_TABLE = new Buffer(512);
-  LOG_TABLE = new Buffer(256);
-}
+var EXP_TABLE = BufferUtil.alloc(512);
+var LOG_TABLE = BufferUtil.alloc(256)
 /**
  * Precompute the log and anti-log tables for faster computation later
  *
@@ -12253,8 +12288,6 @@ if (Buffer.alloc) {
  *
  * ref {@link https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders#Introduction_to_mathematical_fields}
  */
-
-
 ;
 
 (function initTables() {
@@ -12320,8 +12353,7 @@ exports.mul = function mul(x, y) {
   return EXP_TABLE[LOG_TABLE[x] + LOG_TABLE[y]];
 };
 },{"../utils/buffer":"../node_modules/qrcode/lib/utils/typedarray-buffer.js"}],"../node_modules/qrcode/lib/core/polynomial.js":[function(require,module,exports) {
-
-var Buffer = require('../utils/buffer');
+var BufferUtil = require('../utils/buffer');
 
 var GF = require('./galois-field');
 /**
@@ -12334,8 +12366,7 @@ var GF = require('./galois-field');
 
 
 exports.mul = function mul(p1, p2) {
-  var coeff = new Buffer(p1.length + p2.length - 1);
-  coeff.fill(0);
+  var coeff = BufferUtil.alloc(p1.length + p2.length - 1);
 
   for (var i = 0; i < p1.length; i++) {
     for (var j = 0; j < p2.length; j++) {
@@ -12355,7 +12386,7 @@ exports.mul = function mul(p1, p2) {
 
 
 exports.mod = function mod(divident, divisor) {
-  var result = new Buffer(divident);
+  var result = BufferUtil.from(divident);
 
   while (result.length - divisor.length >= 0) {
     var coeff = result[0];
@@ -12384,7 +12415,7 @@ exports.mod = function mod(divident, divisor) {
 
 
 exports.generateECPolynomial = function generateECPolynomial(degree) {
-  var poly = new Buffer([1]);
+  var poly = BufferUtil.from([1]);
 
   for (var i = 0; i < degree; i++) {
     poly = exports.mul(poly, [1, GF.exp(i)]);
@@ -12394,9 +12425,11 @@ exports.generateECPolynomial = function generateECPolynomial(degree) {
 };
 },{"../utils/buffer":"../node_modules/qrcode/lib/utils/typedarray-buffer.js","./galois-field":"../node_modules/qrcode/lib/core/galois-field.js"}],"../node_modules/qrcode/lib/core/reed-solomon-encoder.js":[function(require,module,exports) {
 
-var Buffer = require('../utils/buffer');
+var BufferUtil = require('../utils/buffer');
 
 var Polynomial = require('./polynomial');
+
+var Buffer = require('buffer').Buffer;
 
 function ReedSolomonEncoder(degree) {
   this.genPoly = undefined;
@@ -12431,8 +12464,7 @@ ReedSolomonEncoder.prototype.encode = function encode(data) {
   // extends data size to data+genPoly size
 
 
-  var pad = new Buffer(this.degree);
-  pad.fill(0);
+  var pad = BufferUtil.alloc(this.degree);
   var paddedData = Buffer.concat([data, pad], data.length + this.degree); // The error correction codewords are the remainder after dividing the data codewords
   // by a generator polynomial
 
@@ -12443,8 +12475,7 @@ ReedSolomonEncoder.prototype.encode = function encode(data) {
   var start = this.degree - remainder.length;
 
   if (start > 0) {
-    var buff = new Buffer(this.degree);
-    buff.fill(0);
+    var buff = BufferUtil.alloc(this.degree);
     remainder.copy(buff, start);
     return buff;
   }
@@ -12453,7 +12484,7 @@ ReedSolomonEncoder.prototype.encode = function encode(data) {
 };
 
 module.exports = ReedSolomonEncoder;
-},{"../utils/buffer":"../node_modules/qrcode/lib/utils/typedarray-buffer.js","./polynomial":"../node_modules/qrcode/lib/core/polynomial.js"}],"../node_modules/qrcode/lib/core/version-check.js":[function(require,module,exports) {
+},{"../utils/buffer":"../node_modules/qrcode/lib/utils/typedarray-buffer.js","./polynomial":"../node_modules/qrcode/lib/core/polynomial.js","buffer":"../node_modules/_buffer@4.9.2@buffer/index.js"}],"../node_modules/qrcode/lib/core/version-check.js":[function(require,module,exports) {
 /**
  * Check if QR Code version is valid
  *
@@ -12506,67 +12537,66 @@ exports.NUMERIC = {
   id: 'Numeric',
   bit: 1 << 0,
   ccBits: [10, 12, 14]
-  /**
-   * Alphanumeric mode encodes data from a set of 45 characters,
-   * i.e. 10 numeric digits (0 - 9),
-   *      26 alphabetic characters (A - Z),
-   *   and 9 symbols (SP, $, %, *, +, -, ., /, :).
-   * Normally, two input characters are represented by 11 bits.
-   *
-   * @type {Object}
-   */
-
 };
+/**
+ * Alphanumeric mode encodes data from a set of 45 characters,
+ * i.e. 10 numeric digits (0 - 9),
+ *      26 alphabetic characters (A - Z),
+ *   and 9 symbols (SP, $, %, *, +, -, ., /, :).
+ * Normally, two input characters are represented by 11 bits.
+ *
+ * @type {Object}
+ */
+
 exports.ALPHANUMERIC = {
   id: 'Alphanumeric',
   bit: 1 << 1,
   ccBits: [9, 11, 13]
-  /**
-   * In byte mode, data is encoded at 8 bits per character.
-   *
-   * @type {Object}
-   */
-
 };
+/**
+ * In byte mode, data is encoded at 8 bits per character.
+ *
+ * @type {Object}
+ */
+
 exports.BYTE = {
   id: 'Byte',
   bit: 1 << 2,
   ccBits: [8, 16, 16]
-  /**
-   * The Kanji mode efficiently encodes Kanji characters in accordance with
-   * the Shift JIS system based on JIS X 0208.
-   * The Shift JIS values are shifted from the JIS X 0208 values.
-   * JIS X 0208 gives details of the shift coded representation.
-   * Each two-byte character value is compacted to a 13-bit binary codeword.
-   *
-   * @type {Object}
-   */
-
 };
+/**
+ * The Kanji mode efficiently encodes Kanji characters in accordance with
+ * the Shift JIS system based on JIS X 0208.
+ * The Shift JIS values are shifted from the JIS X 0208 values.
+ * JIS X 0208 gives details of the shift coded representation.
+ * Each two-byte character value is compacted to a 13-bit binary codeword.
+ *
+ * @type {Object}
+ */
+
 exports.KANJI = {
   id: 'Kanji',
   bit: 1 << 3,
   ccBits: [8, 10, 12]
-  /**
-   * Mixed mode will contain a sequences of data in a combination of any of
-   * the modes described above
-   *
-   * @type {Object}
-   */
-
 };
+/**
+ * Mixed mode will contain a sequences of data in a combination of any of
+ * the modes described above
+ *
+ * @type {Object}
+ */
+
 exports.MIXED = {
   bit: -1
-  /**
-   * Returns the number of bits needed to store the data length
-   * according to QR Code specifications.
-   *
-   * @param  {Mode}   mode    Data mode
-   * @param  {Number} version QR Code version
-   * @return {Number}         Number of bits
-   */
-
 };
+/**
+ * Returns the number of bits needed to store the data length
+ * according to QR Code specifications.
+ *
+ * @param  {Mode}   mode    Data mode
+ * @param  {Number} version QR Code version
+ * @return {Number}         Number of bits
+ */
 
 exports.getCharCountIndicator = function getCharCountIndicator(mode, version) {
   if (!mode.ccBits) throw new Error('Invalid mode: ' + mode);
@@ -12957,14 +12987,13 @@ AlphanumericData.prototype.write = function write(bitBuffer) {
 
 module.exports = AlphanumericData;
 },{"./mode":"../node_modules/qrcode/lib/core/mode.js"}],"../node_modules/qrcode/lib/core/byte-data.js":[function(require,module,exports) {
-
-var Buffer = require('../utils/buffer');
+var BufferUtil = require('../utils/buffer');
 
 var Mode = require('./mode');
 
 function ByteData(data) {
   this.mode = Mode.BYTE;
-  this.data = new Buffer(data);
+  this.data = BufferUtil.from(data);
 }
 
 ByteData.getBitsLength = function getBitsLength(length) {
@@ -13563,8 +13592,7 @@ exports.rawSplit = function rawSplit(data) {
   return exports.fromArray(getSegmentsFromString(data, Utils.isKanjiModeEnabled()));
 };
 },{"./mode":"../node_modules/qrcode/lib/core/mode.js","./numeric-data":"../node_modules/qrcode/lib/core/numeric-data.js","./alphanumeric-data":"../node_modules/qrcode/lib/core/alphanumeric-data.js","./byte-data":"../node_modules/qrcode/lib/core/byte-data.js","./kanji-data":"../node_modules/qrcode/lib/core/kanji-data.js","./regex":"../node_modules/qrcode/lib/core/regex.js","./utils":"../node_modules/qrcode/lib/core/utils.js","dijkstrajs":"../node_modules/qrcode/node_modules/dijkstrajs/dijkstra.js"}],"../node_modules/qrcode/lib/core/qrcode.js":[function(require,module,exports) {
-
-var Buffer = require('../utils/buffer');
+var BufferUtil = require('../utils/buffer');
 
 var Utils = require('./utils');
 
@@ -13896,7 +13924,7 @@ function createCodewords(bitBuffer, version, errorCorrectionLevel) {
   var dcData = new Array(ecTotalBlocks);
   var ecData = new Array(ecTotalBlocks);
   var maxDataSize = 0;
-  var buffer = new Buffer(bitBuffer.buffer); // Divide the buffer into the required number of blocks
+  var buffer = BufferUtil.from(bitBuffer.buffer); // Divide the buffer into the required number of blocks
 
   for (var b = 0; b < ecTotalBlocks; b++) {
     var dataSize = b < blocksInGroup1 ? dataCodewordsInGroup1 : dataCodewordsInGroup2; // extract a block of data from buffer
@@ -13910,7 +13938,7 @@ function createCodewords(bitBuffer, version, errorCorrectionLevel) {
   // Interleave the data and error correction codewords from each block
 
 
-  var data = new Buffer(totalCodewords);
+  var data = BufferUtil.alloc(totalCodewords);
   var index = 0;
   var i, r; // Add data codewords
 
@@ -14376,7 +14404,7 @@ function draw(params) {
     document.querySelector('.draw').style.display = 'none';
   });
 }
-},{"html2canvas":"../node_modules/html2canvas/dist/html2canvas.js","qrcode":"../node_modules/qrcode/lib/browser.js"}],"../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"html2canvas":"../node_modules/html2canvas/dist/html2canvas.js","qrcode":"../node_modules/qrcode/lib/browser.js"}],"../node_modules/_parcel-bundler@1.12.4@parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -14404,7 +14432,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56721" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58820" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -14435,8 +14463,9 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         assetsToAccept.forEach(function (v) {
           hmrAcceptRun(v[0], v[1]);
         });
-      } else {
-        window.location.reload();
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
       }
     }
 
@@ -14579,5 +14608,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/_parcel-bundler@1.12.3@parcel-bundler/src/builtins/hmr-runtime.js","html2canvas/index.js"], null)
+},{}]},{},["../node_modules/_parcel-bundler@1.12.4@parcel-bundler/src/builtins/hmr-runtime.js","html2canvas/index.js"], null)
 //# sourceMappingURL=/html2canvas.dbd25e70.js.map
